@@ -9,7 +9,7 @@ class Chessboard():
         self.BOARD_SURFACE = board_surface
         self.FIGURE_SURFACE = figure_surface
         self.IMAGES = self.loadFigureImages()
-        self.color_to_move = "white"
+        self.color_to_move = 0b0
         self.create_board(fen)
         
 
@@ -126,6 +126,12 @@ class Chessboard():
         
         pos = pygame.Vector2(pygame.mouse.get_pos())
         self.draw_figure(pos[0]-0.5*SQUARE_SIZE, pos[1]-0.5*SQUARE_SIZE, figure)
+
+    def draw_valid_moves(self, figure) -> None:
+        if figure == None:
+            return
+        for move in figure.moves:
+            self.draw_tile("#90ee90", int(move.END_SQUARE/8), move.END_SQUARE%8)
 
 
     def loadPositionFromFenString(self, fen: str) -> list[Figure]:

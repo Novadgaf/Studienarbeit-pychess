@@ -8,7 +8,11 @@ class Figure():
         color: str, 
 
         ) -> None:
-        self.COLOR = color
+        self.COLOR = None
+        if color == "white":
+            self.COLOR = 0b0
+        else:
+            self.COLOR = 0b1
         self.NAME = None
         self.TYPE = None
         self.HAS_RANGE_MOVEMENT = False

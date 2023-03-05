@@ -2,6 +2,7 @@ from numpy import empty
 import pygame
 from constants import *
 from chessboard import *
+import logic
 import sys
 
 
@@ -20,13 +21,30 @@ class Pychess():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if fig != None:
-                        if fig.COLOR == self.chessboard.color_to_move:
-                            old_x, old_y, selected_fig = pos_x, pos_y, fig
-                            self.chessboard.squares[old_y*8 + old_x] = None
+                    if fig == None:
+                        continue
+                    if fig.COLOR != self.chessboard.color_to_move:
+                        continue
+                    logic.generateMoves(self.chessboard)
+                    old_x, old_y, selected_fig = pos_x, pos_y, self.chessboard.squares[pos_y*8 + pos_x]
+                    self.chessboard.draw_valid_moves(selected_fig)
+                    self.chessboard.squares[old_y*8 + old_x] = None
                 if event.type == pygame.MOUSEBUTTONUP:
-                    self.chessboard.squares[pos_y*8 + pos_x] = selected_fig
-                    selected_fig = None
+                    self.chessboard.draw_board()
+                    if selected_fig == None:
+                        if fig == None:
+                            continue
+                        if fig.COLOR != self.chessboard.color_to_move:
+                            continue
+                    move = logic.Move((old_y*8 + old_x), (pos_y*8 + pos_x))
+                    if logic.check_valid_move(move, selected_fig):
+                        self.chessboard.squares[pos_y*8 + pos_x] = selected_fig
+                        selected_fig = None
+                        self.chessboard.color_to_move = self.chessboard.color_to_move^0b1
+                    else:
+                        self.chessboard.squares[old_y*8 + old_x] = selected_fig
+                        selected_fig = None
+
             
             self.FIGURE_LAYER.fill(pygame.Color(0,0,0,0))
             self.chessboard.draw_figures()

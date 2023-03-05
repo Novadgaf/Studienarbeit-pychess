@@ -1,10 +1,13 @@
 
 
-SQUAREOFFSET = [8, -8, -1, 1, 7, -7, 9, -9]
-squaresToBorder = [[None for x in range(8)] for y in range(64)]
+SQUAREOFFSET = [-8, 8, -1, 1, -9, 9, -7, 7]
+
+#NW, NE, SW, SE, WN, WS, EN, ES
+SQUAREOFFSET_KNIGHT = [-17, -15, 15, 17, -10, 6, -6, 10]
 
 def calculateSquaresToBorderArray():
-    for idx, offsets in enumerate(squaresToBorder):
+    offsets = []
+    for idx in range(64):
 
         file = idx % 8
         rank = int(idx/8)
@@ -14,10 +17,10 @@ def calculateSquaresToBorderArray():
         west = file
         east = 7 - file
 
-        offsets = [
+        offsets.append([
             north, south, west, east, 
             min(north, west), min(south, east), min(north, east), min(south, west)
-            ]
+            ])
     
     return offsets
 
@@ -52,7 +55,8 @@ def generateRangeMoves(chessboard, start_square: int) -> list[Move]:
     """
 
     border_offsets = calculateSquaresToBorderArray()
-    figure = chessboard[start_square]
+    border_offsets = border_offsets[start_square]
+    figure = chessboard.squares[start_square]
 
 
     figure_border_offets = []
@@ -68,22 +72,32 @@ def generateRangeMoves(chessboard, start_square: int) -> list[Move]:
         figure_border_offets.append(border_offsets[4:])
         figure_square_offsets.append(SQUAREOFFSET[4:])
 
-    for border_offset, square_offset in (figure_border_offets, figure_square_offsets):
-        for x in range(border_offset):
+    figure_border_offets = [item for sublist in figure_border_offets for item in sublist]
+    figure_square_offsets = [item for sublist in figure_square_offsets for item in sublist]
+    for border_offset, square_offset in zip(figure_border_offets, figure_square_offsets):
+        for x in range(1, border_offset+1):
 
             end_square = start_square + x*square_offset
             move = Move(start_square, end_square)
 
-            if chessboard[end_square] == None:
+            if chessboard.squares[end_square] == None:
                 moves.append(move)
 
-            elif chessboard[end_square].COLOR != chessboard.color_to_move:
+            elif chessboard.squares[end_square].COLOR != chessboard.color_to_move:
                 moves.append(move)
                 break
             
             else:
                 break
-
     return moves
 
+
+def generateKnightMoves(chessboard, start_square: int) -> list[Move]:
+    border_offset = calculateSquaresToBorderArray()
+    if border_offset[]
+def check_valid_move(move: Move, figure):
+    for valid_move in figure.moves:
+        if valid_move.START_SQUARE == move.START_SQUARE and valid_move.END_SQUARE == move.END_SQUARE:
+            return True
+    return False
         
