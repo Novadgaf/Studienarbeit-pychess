@@ -13,6 +13,7 @@ class Pychess():
         self.setup_pygame()
 
         selected_fig = None
+        
         while True:
             pos_x, pos_y, fig = self.chessboard.get_square_under_mouse()
             for event in pygame.event.get():
@@ -20,8 +21,9 @@ class Pychess():
                     pygame.quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if fig != None:
-                        old_x, old_y, selected_fig = pos_x, pos_y, fig
-                        self.chessboard.squares[old_y*8 + old_x] = None
+                        if fig.COLOR == self.chessboard.color_to_move:
+                            old_x, old_y, selected_fig = pos_x, pos_y, fig
+                            self.chessboard.squares[old_y*8 + old_x] = None
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.chessboard.squares[pos_y*8 + pos_x] = selected_fig
                     selected_fig = None

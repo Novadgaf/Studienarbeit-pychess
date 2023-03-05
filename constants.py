@@ -7,4 +7,4 @@ HEIGHT = 640
 SQUARE_SIZE = 80
 
 #rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-STARTFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+STARTFEN = "8/p4p1n/4B1PQ/P1R5/P2KP3/4r2p/7P/1kN5 w - - 0 1"

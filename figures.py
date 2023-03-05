@@ -1,11 +1,20 @@
 
+from logic import Move
+
+
 class Figure():
     def __init__(
         self, 
         color: str, 
+
         ) -> None:
         self.COLOR = color
         self.NAME = None
+        self.TYPE = None
+        self.HAS_RANGE_MOVEMENT = False
+
+        self.moves: list[Move] = []
+        
 
 class Pawn(Figure):
     """Class for the pawn figure
@@ -16,6 +25,8 @@ class Pawn(Figure):
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.NAME = fr"{color}_pawn.png"
+        self.TYPE = "p"
+
 
 class Rook(Figure):
     """Class for the rook figure
@@ -26,7 +37,8 @@ class Rook(Figure):
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.NAME = fr"{color}_rook.png"
-
+        self.TYPE = "r"
+        self.HAS_RANGE_MOVEMENT = True
         self.has_moved = False
 
 class Knight(Figure):
@@ -38,6 +50,7 @@ class Knight(Figure):
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.NAME = fr"{color}_knight.png"
+        self.TYPE = "n"
 
 class Bishop(Figure):
     """Class for the bishop figure
@@ -47,7 +60,9 @@ class Bishop(Figure):
     """
     def __init__(self, color: str) -> None:
         super().__init__(color)
+        self.HAS_RANGE_MOVEMENT = True
         self.NAME = fr"{color}_bishop.png"
+        self.TYPE = "b"
 
 class Queen(Figure):
     """Class for the queen figure
@@ -57,7 +72,9 @@ class Queen(Figure):
     """
     def __init__(self, color: str) -> None:
         super().__init__(color)
+        self.HAS_RANGE_MOVEMENT = True
         self.NAME = fr"{color}_queen.png"
+        self.TYPE = "q"
 
 class King(Figure):
     """Class for the king figure
@@ -68,6 +85,7 @@ class King(Figure):
     def __init__(self, color: str) -> None:
         super().__init__(color)
         self.NAME = fr"{color}_king.png"
+        self.TYPE = "k"
 
         self.has_moved = False
         self.is_checked = False

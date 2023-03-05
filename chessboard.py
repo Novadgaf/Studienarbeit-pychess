@@ -9,6 +9,7 @@ class Chessboard():
         self.BOARD_SURFACE = board_surface
         self.FIGURE_SURFACE = figure_surface
         self.IMAGES = self.loadFigureImages()
+        self.color_to_move = "white"
         self.create_board(fen)
         
 
