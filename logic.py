@@ -43,6 +43,15 @@ def generateMoves(chessboard):
         if figure.HAS_RANGE_MOVEMENT: 
             figure.moves = generateRangeMoves(chessboard, idx)
 
+        if figure.TYPE == "k":
+            figure.moves = generateKingMoves(chessboard, idx)
+
+        if figure.TYPE == "p":
+            figure.moves = generatePawnMoves(chessboard, idx)
+
+        if figure.TYPE == "n":
+            figure.moves = generateKnightMoves(chessboard, idx)
+
 def generateRangeMoves(chessboard, start_square: int) -> list[Move]:
     """generate all possible moves for a range movement figure on the board
 
@@ -92,12 +101,114 @@ def generateRangeMoves(chessboard, start_square: int) -> list[Move]:
     return moves
 
 
+def generateKingMoves(chessboard, start_square: int) -> list[Move]:
+    borderOffsets = calculateSquaresToBorderArray()
+    borderOffsets = borderOffsets[start_square]
+    figure = chessboard.squares[start_square]
+
+    moves = []
+
+    for border_offset, square_offset in zip(borderOffsets, SQUAREOFFSET):
+        if border_offset > 0:
+            end_square = start_square + square_offset
+            move = Move(start_square, end_square)
+
+            if chessboard.squares[end_square] == None:
+                moves.append(move)
+
+            elif chessboard.squares[end_square].COLOR != chessboard.color_to_move:
+                moves.append(move)
+
+    return moves   
+
+
 def generateKnightMoves(chessboard, start_square: int) -> list[Move]:
     border_offset = calculateSquaresToBorderArray()
-    if border_offset[]
+    border_offset = border_offset[start_square]
+    figure_offsets = SQUAREOFFSET_KNIGHT.copy()
+    moves = []
+
+    if border_offset[0] < 2:
+        figure_offsets[0] = 0
+        figure_offsets[1] = 0
+        if border_offset[0] == 0:
+            figure_offsets[4] = 0
+            figure_offsets[6] = 0
+
+    if border_offset[1] < 2:
+        figure_offsets[2] = 0
+        figure_offsets[3] = 0
+        if border_offset[1] == 0:
+            figure_offsets[5] = 0
+            figure_offsets[7] = 0
+
+    if border_offset[2] < 2: 
+        figure_offsets[4] = 0
+        figure_offsets[5] = 0
+        if border_offset[2] == 0:
+            figure_offsets[0] = 0
+            figure_offsets[2] = 0
+
+    if border_offset[3] < 2:
+        figure_offsets[6] = 0
+        figure_offsets[7] = 0
+        if border_offset[3] == 0:
+            figure_offsets[1] = 0
+            figure_offsets[3] = 0
+
+
+    for os in figure_offsets:
+
+        if os == 0: continue
+
+        end_square = start_square+os
+        if chessboard.squares[end_square] != None:
+            if chessboard.squares[end_square].COLOR == chessboard.color_to_move:
+                continue
+        
+        moves.append(Move(start_square, end_square))
+    
+    return moves
+
+
+def generatePawnMoves(chessboard, start_square: int) -> list[Move]:
+    borderOffsets = calculateSquaresToBorderArray()
+    borderOffsets = borderOffsets[start_square]
+    figure = chessboard.squares[start_square]
+
+    walking_direction = 1 if figure.COLOR == 0b0 else -1
+
+    moves = []
+    end_square = start_square+SQUAREOFFSET[0]*walking_direction
+
+    if chessboard.squares[end_square] == None:
+        moves.append(Move(start_square, end_square))
+
+        rank = int(start_square/8)
+        if figure.COLOR == 0b0 and rank == 5 or figure.COLOR == 0b1 and rank == 1:
+            end_square = start_square+2*SQUAREOFFSET[0]*walking_direction
+            
+            if chessboard.squares[end_square] == None:
+                moves.append(Move(start_square, end_square))
+
+    end_square = start_square+SQUAREOFFSET[4]*walking_direction
+    if chessboard.squares[end_square] != None and abs(start_square%8 - end_square%8) == 1:
+        if  chessboard.squares[end_square].COLOR != figure.COLOR:
+            moves.append(Move(start_square, end_square))
+    
+    end_square = start_square+SQUAREOFFSET[6]*walking_direction
+    if chessboard.squares[end_square] != None and abs(start_square%8 - end_square%8) == 1:
+        if  chessboard.squares[end_square].COLOR != figure.COLOR:
+            moves.append(Move(start_square, end_square))
+
+    return moves
+
+
+
+
+
 def check_valid_move(move: Move, figure):
     for valid_move in figure.moves:
         if valid_move.START_SQUARE == move.START_SQUARE and valid_move.END_SQUARE == move.END_SQUARE:
             return True
     return False
-        
