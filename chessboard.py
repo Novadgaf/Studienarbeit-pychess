@@ -9,7 +9,12 @@ class Chessboard():
         self.BOARD_SURFACE = board_surface
         self.FIGURE_SURFACE = figure_surface
         self.IMAGES = self.loadFigureImages()
+
         self.color_to_move = 0b0
+        self.castle_right = "KQkq"
+        self.en_passant_square = "-"
+
+
         self.create_board(fen)
         
 
@@ -161,10 +166,16 @@ class Chessboard():
             if symbol.isnumeric():
                 file += int(symbol)
             else:
-                color = "black" if symbol.islower() else "white"
+                color = 0b1 if symbol.islower() else 0b0
                 piece = symbolPieceDic[symbol.lower()](color)
                 chessboard_array[rank*8 + file] = piece
                 file += 1
                 
-
+        self.color_to_move = 0b0 if fen.split(" ")[1] == "w" else 0b1
+        self.castle_right = fen.split(" ")[2]
+        self.en_passant_square = fen.split(" ")[3]
+                
         return chessboard_array
+    
+    def square_name_to_index(square_name: str) -> int:
+        return ord(square_name[0])-97 + 64-8*int(square_name[1])

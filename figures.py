@@ -1,18 +1,13 @@
-
 from logic import Move
 
 
 class Figure():
     def __init__(
         self, 
-        color: str, 
+        color, 
 
         ) -> None:
-        self.COLOR = None
-        if color == "white":
-            self.COLOR = 0b0
-        else:
-            self.COLOR = 0b1
+        self.COLOR = color
         self.NAME = None
         self.TYPE = None
         self.HAS_RANGE_MOVEMENT = False
@@ -43,7 +38,6 @@ class Rook(Figure):
         self.NAME = fr"{color}_rook.png"
         self.TYPE = "r"
         self.HAS_RANGE_MOVEMENT = True
-        self.has_moved = False
 
 class Knight(Figure):
     """Class for the knight figure
@@ -91,6 +85,5 @@ class King(Figure):
         self.NAME = fr"{color}_king.png"
         self.TYPE = "k"
 
-        self.has_moved = False
         self.is_checked = False
 

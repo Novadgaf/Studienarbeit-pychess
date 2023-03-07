@@ -1,6 +1,7 @@
-#NW, NE, SW, SE, WN, WS, EN, ES
-SQUAREOFFSET_KNIGHT = [-17, -15, 15, 17, -10, 6, -6, 10]
+def square_name_to_index(square_name: str) -> int:
+        print(ord(square_name[0])-97 + 64-8*int(square_name[1]))
 
-SQUAREOFFSET_KNIGHT[2:4] = 0
-
-print(SQUAREOFFSET_KNIGHT)
+square_name_to_index("a4")
+square_name_to_index("c6")
+square_name_to_index("h5")
+square_name_to_index("a8")

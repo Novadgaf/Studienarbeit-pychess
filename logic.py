@@ -1,5 +1,4 @@
 
-
 SQUAREOFFSET = [-8, 8, -1, 1, -9, 9, -7, 7]
 
 #NW, NE, SW, SE, WN, WS, EN, ES
@@ -201,7 +200,11 @@ def generatePawnMoves(chessboard, start_square: int) -> list[Move]:
         if  chessboard.squares[end_square].COLOR != figure.COLOR:
             moves.append(Move(start_square, end_square))
 
-    return moves
+    end_square = chessboard.square_name_to_index(chessboard.en_passant_square)
+    if abs(start_square%8 - end_square%8) == 1 and int(start_square/8 - end_square/8) == 1:
+        moves.append
+
+    return moves(Move(start_square, end_square))
 
 
 
