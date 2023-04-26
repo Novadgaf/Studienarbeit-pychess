@@ -177,5 +177,10 @@ class Chessboard():
                 
         return chessboard_array
     
-    def square_name_to_index(square_name: str) -> int:
+    def square_name_to_index(self, square_name: str) -> int:
+        if square_name == "-": return None
         return ord(square_name[0])-97 + 64-8*int(square_name[1])
+    
+    def index_to_square_name(self, index: int) -> str:
+        ret = f"{chr(index%8 + 97)}{8-int(index/8)}"
+        return ret
