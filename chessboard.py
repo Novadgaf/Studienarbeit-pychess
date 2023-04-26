@@ -18,6 +18,12 @@ class Chessboard():
 
         self.create_board(fen)
         
+    def make_move(self, move: Move):
+        if move.CAPTURE != None:
+            self.squares[move.CAPTURE] = None
+        self.squares[move.END_SQUARE] = move.FIGURE
+        self.color_to_move = self.color_to_move^0b1
+        self.en_passant_square = move.EN_PASSANT_SQUARE
 
     def create_board(self, fen):
         """
@@ -29,7 +35,6 @@ class Chessboard():
         self.draw_board()
         self.squares = self.loadPositionFromFenString(fen)
         self.draw_figures()
-
         
     def draw_board(self):
         """
@@ -44,7 +49,6 @@ class Chessboard():
                 self.draw_tile(color, col, row)
         pygame.display.update()
     
-
     def draw_tile(self, color: str, cord_y: int, cord_x: int) -> None:
         """
         draw_tile draws a single color rectangle
@@ -55,7 +59,6 @@ class Chessboard():
             cord_x (int): x cord of the rect (0-7)
         """
         pygame.draw.rect(self.BOARD_SURFACE, color, [SQUARE_SIZE*cord_x, SQUARE_SIZE*cord_y, SQUARE_SIZE, SQUARE_SIZE])
-
 
     def loadFigureImages(self) -> dict:
         """
@@ -77,7 +80,6 @@ class Chessboard():
 
         return images
 
-
     def draw_figure(self, cord_x: int, cord_y: int, figure: Figure) -> None:
         """
         draw_figure draws a single figure
@@ -90,7 +92,6 @@ class Chessboard():
 
         rec = pygame.Rect(cord_x,cord_y,SQUARE_SIZE,SQUARE_SIZE)
         self.FIGURE_SURFACE.blit(self.IMAGES[figure.NAME], rec)
-
 
     def draw_figures(self):
         """
@@ -138,7 +139,6 @@ class Chessboard():
             return
         for move in figure.moves:
             self.draw_tile("#90ee90", int(move.END_SQUARE/8), move.END_SQUARE%8)
-
 
     def loadPositionFromFenString(self, fen: str) -> list[Figure]:
 

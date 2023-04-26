@@ -33,15 +33,10 @@ class Pychess():
                     self.chessboard.draw_board()
                     if selected_fig == None:
                         continue
-                    move = logic.check_valid_move(logic.Move((old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
+                    move = logic.check_valid_move(logic.Move(selected_fig, (old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
                     if move:
-                        
-                        if move.CAPTURE != None:
-                            self.chessboard.squares[move.CAPTURE] = None
-                        self.chessboard.squares[pos_y*8 + pos_x] = selected_fig
+                        self.chessboard.make_move(move)
                         selected_fig = None
-                        self.chessboard.color_to_move = self.chessboard.color_to_move^0b1
-                        self.chessboard.en_passant_square = move.EN_PASSANT_SQUARE
                     else:
                         self.chessboard.squares[old_y*8 + old_x] = selected_fig
                         selected_fig = None

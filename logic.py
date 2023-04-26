@@ -1,3 +1,4 @@
+from move import Move
 
 SQUAREOFFSET = [-8, 8, -1, 1, -9, 9, -7, 7]
 
@@ -22,14 +23,6 @@ def calculateSquaresToBorderArray():
             ])
     
     return offsets
-
-
-class Move():
-    def __init__(self, start, end, capture=None, en_passant_square="-") -> None:
-        self.START_SQUARE = start
-        self.END_SQUARE = end
-        self.CAPTURE = capture
-        self.EN_PASSANT_SQUARE = en_passant_square
         
 
 def generateMoves(chessboard):
@@ -89,7 +82,7 @@ def generateRangeMoves(chessboard, start_square: int) -> list[Move]:
         for x in range(1, border_offset+1):
 
             end_square = start_square + x*square_offset
-            move = Move(start_square, end_square)
+            move = Move(figure, start_square, end_square)
 
             if chessboard.squares[end_square] == None:
                 moves.append(move)
@@ -114,7 +107,7 @@ def generateKingMoves(chessboard, start_square: int) -> list[Move]:
     for border_offset, square_offset in zip(borderOffsets, SQUAREOFFSET):
         if border_offset > 0:
             end_square = start_square + square_offset
-            move = Move(start_square, end_square)
+            move = Move(figure, start_square, end_square)
 
             if chessboard.squares[end_square] == None:
                 moves.append(move)
@@ -130,6 +123,7 @@ def generateKnightMoves(chessboard, start_square: int) -> list[Move]:
     border_offset = calculateSquaresToBorderArray()
     border_offset = border_offset[start_square]
     figure_offsets = SQUAREOFFSET_KNIGHT.copy()
+    figure = chessboard.squares[start_square]
     moves = []
 
     if border_offset[0] < 2:
@@ -169,7 +163,7 @@ def generateKnightMoves(chessboard, start_square: int) -> list[Move]:
         if chessboard.squares[end_square] != None:
             if chessboard.squares[end_square].COLOR == chessboard.color_to_move:
                 continue
-        moves.append(Move(start_square, end_square, capture=end_square))
+        moves.append(Move(figure, start_square, end_square, capture=end_square))
     
     return moves
 
@@ -185,7 +179,7 @@ def generatePawnMoves(chessboard, start_square: int) -> list[Move]:
     end_square = start_square+SQUAREOFFSET[0]*walking_direction
 
     if chessboard.squares[end_square] == None:
-        moves.append(Move(start_square, end_square))
+        moves.append(Move(figure, start_square, end_square))
 
         rank = int(start_square/8)
         if figure.COLOR == 0b0 and rank == 6 or figure.COLOR == 0b1 and rank == 1:
@@ -193,24 +187,24 @@ def generatePawnMoves(chessboard, start_square: int) -> list[Move]:
             
             if chessboard.squares[end_square] == None:
                 ep_square = end_square+SQUAREOFFSET[0]*(-1)*walking_direction
-                moves.append(Move(start_square, end_square, en_passant_square=chessboard.index_to_square_name(ep_square)))
+                moves.append(Move(figure, start_square, end_square, en_passant_square=chessboard.index_to_square_name(ep_square)))
 
     #pawn capture
     end_square = start_square+SQUAREOFFSET[4]*walking_direction
     if chessboard.squares[end_square] != None:
         if  chessboard.squares[end_square].COLOR != figure.COLOR:
-            moves.append(Move(start_square, end_square, capture=end_square))
+            moves.append(Move(figure, start_square, end_square, capture=end_square))
     
     end_square = start_square+SQUAREOFFSET[6]*walking_direction
     if chessboard.squares[end_square] != None:
         if  chessboard.squares[end_square].COLOR != figure.COLOR:
-            moves.append(Move(start_square, end_square, capture=end_square))
+            moves.append(Move(figure, start_square, end_square, capture=end_square))
 
     #En passant
     end_square = chessboard.square_name_to_index(chessboard.en_passant_square)
     if end_square != None:
         if abs(start_square%8 - end_square%8) == 1 and abs(int(start_square/8) - int(end_square/8)) == 1:
-            moves.append(Move(start_square, end_square, capture=end_square+(8)*walking_direction))
+            moves.append(Move(figure, start_square, end_square, capture=end_square+(8)*walking_direction))
 
     return moves
 
@@ -220,3 +214,6 @@ def check_valid_move(move: Move, figure):
         if valid_move.START_SQUARE == move.START_SQUARE and valid_move.END_SQUARE == move.END_SQUARE:
             return valid_move
     return None
+
+def check_if_checked():
+    pass
