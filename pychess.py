@@ -25,7 +25,6 @@ class Pychess():
                         continue
                     if fig.COLOR != self.chessboard.color_to_move:
                         continue
-                    print(f"EP SQUARE BEVORE GENERATE MOVES {self.chessboard.en_passant_square}")
                     logic.generateMoves(self.chessboard)
                     old_x, old_y, selected_fig = pos_x, pos_y, self.chessboard.squares[pos_y*8 + pos_x]
                     self.chessboard.draw_valid_moves(selected_fig)
@@ -36,13 +35,13 @@ class Pychess():
                         continue
                     move = logic.check_valid_move(logic.Move((old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
                     if move:
-                        self.chessboard.squares[pos_y*8 + pos_x] = selected_fig
+                        
                         if move.CAPTURE != None:
                             self.chessboard.squares[move.CAPTURE] = None
+                        self.chessboard.squares[pos_y*8 + pos_x] = selected_fig
                         selected_fig = None
                         self.chessboard.color_to_move = self.chessboard.color_to_move^0b1
                         self.chessboard.en_passant_square = move.EN_PASSANT_SQUARE
-                        print(f"EN PASSANT SQUARE {self.chessboard.en_passant_square}")
                     else:
                         self.chessboard.squares[old_y*8 + old_x] = selected_fig
                         selected_fig = None

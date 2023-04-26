@@ -10,6 +10,7 @@ class Chessboard():
         self.FIGURE_SURFACE = figure_surface
         self.IMAGES = self.loadFigureImages()
 
+        #0 for white 1 for black
         self.color_to_move = 0b0
         self.castle_right = "KQkq"
         self.en_passant_square = "-"

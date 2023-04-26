@@ -23,6 +23,7 @@ def calculateSquaresToBorderArray():
     
     return offsets
 
+
 class Move():
     def __init__(self, start, end, capture=None, en_passant_square="-") -> None:
         self.START_SQUARE = start
@@ -37,7 +38,6 @@ def generateMoves(chessboard):
     :return: list of possible moves
     :rtype: list[Move]
     """
-    print("\n\n\n\n\n")
     for idx, figure in enumerate(chessboard.squares):
         if figure == None: continue
         if figure.COLOR != chessboard.color_to_move: continue
@@ -95,6 +95,7 @@ def generateRangeMoves(chessboard, start_square: int) -> list[Move]:
                 moves.append(move)
 
             elif chessboard.squares[end_square].COLOR != chessboard.color_to_move:
+                move.CAPTURE = end_square
                 moves.append(move)
                 break
             
@@ -119,6 +120,7 @@ def generateKingMoves(chessboard, start_square: int) -> list[Move]:
                 moves.append(move)
 
             elif chessboard.squares[end_square].COLOR != chessboard.color_to_move:
+                move.CAPTURE = end_square
                 moves.append(move)
 
     return moves   
@@ -167,8 +169,7 @@ def generateKnightMoves(chessboard, start_square: int) -> list[Move]:
         if chessboard.squares[end_square] != None:
             if chessboard.squares[end_square].COLOR == chessboard.color_to_move:
                 continue
-        
-        moves.append(Move(start_square, end_square))
+        moves.append(Move(start_square, end_square, capture=end_square))
     
     return moves
 
@@ -188,37 +189,30 @@ def generatePawnMoves(chessboard, start_square: int) -> list[Move]:
 
         rank = int(start_square/8)
         if figure.COLOR == 0b0 and rank == 6 or figure.COLOR == 0b1 and rank == 1:
-            print(f"END SQUARE b4 new end square: {chessboard.index_to_square_name(end_square)} (INDEX = {end_square})")
             end_square = start_square+2*SQUAREOFFSET[0]*walking_direction
-            print(f"END SQUARE after new end square: {chessboard.index_to_square_name(end_square)} (INDEX = {end_square})")
             
             if chessboard.squares[end_square] == None:
                 ep_square = end_square+SQUAREOFFSET[0]*(-1)*walking_direction
-                print(f"End square: {chessboard.index_to_square_name(end_square)} (INDEX = {end_square})")
-                print(f"EP square: {chessboard.index_to_square_name(ep_square)} (INDEX = {ep_square})")
                 moves.append(Move(start_square, end_square, en_passant_square=chessboard.index_to_square_name(ep_square)))
 
+    #pawn capture
     end_square = start_square+SQUAREOFFSET[4]*walking_direction
-    if chessboard.squares[end_square] != None and abs(start_square%8 - end_square%8) == 1:
+    if chessboard.squares[end_square] != None:
         if  chessboard.squares[end_square].COLOR != figure.COLOR:
-            moves.append(Move(start_square, end_square))
+            moves.append(Move(start_square, end_square, capture=end_square))
     
     end_square = start_square+SQUAREOFFSET[6]*walking_direction
-    if chessboard.squares[end_square] != None and abs(start_square%8 - end_square%8) == 1:
+    if chessboard.squares[end_square] != None:
         if  chessboard.squares[end_square].COLOR != figure.COLOR:
-            moves.append(Move(start_square, end_square))
+            moves.append(Move(start_square, end_square, capture=end_square))
 
+    #En passant
     end_square = chessboard.square_name_to_index(chessboard.en_passant_square)
-    print(f"EN PASSANT SQUARE In MOVE CHECK = {chessboard.en_passant_square} {end_square}")
     if end_square != None:
         if abs(start_square%8 - end_square%8) == 1 and abs(int(start_square/8) - int(end_square/8)) == 1:
             moves.append(Move(start_square, end_square, capture=end_square+(8)*walking_direction))
-            print("")
 
     return moves
-
-
-
 
 
 def check_valid_move(move: Move, figure):
