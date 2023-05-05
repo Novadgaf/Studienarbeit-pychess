@@ -2,8 +2,10 @@ from numpy import empty
 import pygame
 from constants import *
 from chessboard import *
-import logic
+from moveGenerator import MoveGenerator
+from move import Move
 import sys
+from tkinter import messagebox
 
 
 class Pychess():
@@ -12,7 +14,6 @@ class Pychess():
 
     def main(self):
         self.setup_pygame()
-
         selected_fig = None
         
         while True:
@@ -25,20 +26,18 @@ class Pychess():
                         continue
                     if fig.COLOR != self.chessboard.color_to_move:
                         continue
-                    logic.generateMoves(self.chessboard)
+                    self.moveGenerator.generateMoves()
                     old_x, old_y, selected_fig = pos_x, pos_y, self.chessboard.squares[pos_y*8 + pos_x]
                     self.chessboard.draw_valid_moves(selected_fig)
-                    self.chessboard.squares[old_y*8 + old_x] = None
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.chessboard.draw_board()
                     if selected_fig == None:
                         continue
-                    move = logic.check_valid_move(logic.Move(selected_fig, (old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
+                    move = self.moveGenerator.try_move(Move(selected_fig, (old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
                     if move:
                         self.chessboard.make_move(move)
                         selected_fig = None
                     else:
-                        self.chessboard.squares[old_y*8 + old_x] = selected_fig
                         selected_fig = None
 
             
@@ -50,6 +49,8 @@ class Pychess():
             self.WIN.blit(self.FIGURE_LAYER,(0,0))
             pygame.display.update()
 
+            if not self.moveGenerator.generateMoves():
+                messagebox.showinfo("CHECKMATE")
 
 
     def setup_pygame(self):
@@ -61,6 +62,7 @@ class Pychess():
         self.FIGURE_LAYER = pygame.Surface((WIDTH,HEIGHT), pygame.SRCALPHA)
 
         self.chessboard = Chessboard(self.BOARD_LAYER, self.FIGURE_LAYER)
+        self.moveGenerator = MoveGenerator(self.chessboard)
 
     def update_win(self):
         """

@@ -19,11 +19,66 @@ class Chessboard():
         self.create_board(fen)
         
     def make_move(self, move: Move):
-        if move.CAPTURE != None:
-            self.squares[move.CAPTURE] = None
-        self.squares[move.END_SQUARE] = move.FIGURE
         self.color_to_move = self.color_to_move^0b1
         self.en_passant_square = move.EN_PASSANT_SQUARE
+
+        if move.IS_CASTLE:
+            self.castle(move.CASTLE_TYPE)
+            return
+
+        if move.CAPTURE != None:
+            self.squares[move.CAPTURE] = None
+        self.squares[move.START_SQUARE] = None
+        self.squares[move.END_SQUARE] = move.FIGURE
+        self.squares[move.END_SQUARE].has_moved = True
+
+    def castle(self, type):
+        print(f"castle type {type} rights {self.castle_right}")
+        if type == "K" and type in self.castle_right:
+            king = self.squares[self.square_name_to_index("e1")]
+            rook = self.squares[self.square_name_to_index("h1")]
+
+            self.squares[self.square_name_to_index("g1")] = king
+            self.squares[self.square_name_to_index("f1")] = rook
+            self.squares[self.square_name_to_index("g1")].has_moved = True
+            self.squares[self.square_name_to_index("f1")].has_moved = True
+            self.squares[self.square_name_to_index("e1")] = None
+            self.squares[self.square_name_to_index("h1")] = None
+            self.castle_right = self.castle_right.replace(type, "")
+            pass
+        elif type == "Q" and type in self.castle_right:
+            king = self.squares[self.square_name_to_index("e1")]
+            rook = self.squares[self.square_name_to_index("a1")]
+
+            self.squares[self.square_name_to_index("c1")] = king
+            self.squares[self.square_name_to_index("d1")] = rook
+            self.squares[self.square_name_to_index("c1")].has_moved = True
+            self.squares[self.square_name_to_index("d1")].has_moved = True
+            self.squares[self.square_name_to_index("e1")] = None
+            self.squares[self.square_name_to_index("a1")] = None
+            self.castle_right.replace(type, "")
+        elif type == "k" and type in self.castle_right:
+            king = self.squares[self.square_name_to_index("e8")]
+            rook = self.squares[self.square_name_to_index("h8")]
+
+            self.squares[self.square_name_to_index("g8")] = king
+            self.squares[self.square_name_to_index("f8")] = rook
+            self.squares[self.square_name_to_index("g8")].has_moved = True
+            self.squares[self.square_name_to_index("f8")].has_moved = True
+            self.squares[self.square_name_to_index("e8")] = None
+            self.squares[self.square_name_to_index("h8")] = None
+            self.castle_right = self.castle_right = self.castle_right.replace(type, "")
+        elif type == "q" and type in self.castle_right:
+            king = self.squares[self.square_name_to_index("e8")]
+            rook = self.squares[self.square_name_to_index("a8")]
+
+            self.squares[self.square_name_to_index("c8")] = king
+            self.squares[self.square_name_to_index("d8")] = rook
+            self.squares[self.square_name_to_index("c8")].has_moved = True
+            self.squares[self.square_name_to_index("d8")].has_moved = True
+            self.squares[self.square_name_to_index("e8")] = None
+            self.squares[self.square_name_to_index("a8")] = None
+            self.castle_right = self.castle_right.replace(type, "")
 
     def create_board(self, fen):
         """

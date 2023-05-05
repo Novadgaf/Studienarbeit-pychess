@@ -1,4 +1,4 @@
-from logic import Move
+from move import Move
 
 
 class Figure():
@@ -11,6 +11,7 @@ class Figure():
         self.NAME = None
         self.TYPE = None
         self.HAS_RANGE_MOVEMENT = False
+        self.has_moved = False
 
         self.moves: list[Move] = []
         
