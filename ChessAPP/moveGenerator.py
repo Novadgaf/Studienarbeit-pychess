@@ -343,12 +343,12 @@ class MoveGenerator:
         walking_direction = 1 if king_figure.COLOR == 0b0 else -1
         end_square = king_square+SQUAREOFFSET[4]*walking_direction
         if position[end_square] != None:
-            if  position[end_square].COLOR != king_figure.COLOR:
+            if  position[end_square].COLOR != king_figure.COLOR and position[end_square].TYPE == "p":
                 checks += 1
         
         end_square = king_square+SQUAREOFFSET[6]*walking_direction
-        if self.chessboard.squares[end_square] != None:
-            if  self.chessboard.squares[end_square].COLOR != king_figure.COLOR:
+        if position[end_square] != None:
+            if  position[end_square].COLOR != king_figure.COLOR and position[end_square].TYPE == "p":
                 checks += 1
 
         return checks
