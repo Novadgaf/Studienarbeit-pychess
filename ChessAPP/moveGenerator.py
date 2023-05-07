@@ -307,6 +307,8 @@ class MoveGenerator:
                 elif end_square_figure.COLOR != self.chessboard.color_to_move:
                     if end_square_figure.TYPE == "r" or end_square_figure.TYPE == "q":
                         checks += 1
+                    else: 
+                        break
                 else:
                     break
 
@@ -324,6 +326,8 @@ class MoveGenerator:
                 elif end_square_figure.COLOR != self.chessboard.color_to_move:
                     if end_square_figure.TYPE == "b" or end_square_figure.TYPE == "q":
                         checks += 1
+                    else:
+                        break
 
                 else:
                     break
