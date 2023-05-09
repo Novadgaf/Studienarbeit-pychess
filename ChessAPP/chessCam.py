@@ -147,6 +147,7 @@ class ChessCam:
             hsv = cv2.cvtColor(topdown, cv2.COLOR_BGR2HSV)
             mask_white = cv2.inRange(hsv, self.lower_hsv, self.upper_hsv)
             filtered = cv2.bitwise_and(topdown, topdown, mask=mask_white)
+            filtered = cv2.cvtColor(filtered, cv2.COLOR_BGR2GRAY)
         else:
             # Filter out the black pieces
             gray = cv2.cvtColor(topdown, cv2.COLOR_BGR2GRAY)

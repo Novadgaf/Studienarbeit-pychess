@@ -51,17 +51,17 @@ class Pychess():
             if not moves:
                 return
 
-            #if self.chessboard.color_to_move == self.player_color and not skip_camera_move:
-            #    camMove = self.chessCam.capture_images()
-            #    if len(camMove) == 2:
-            #        playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove]
-            #        if not self.try_user_move(moves, playerMoves): skip_camera_move = True
-#
-            #    elif len(camMove) == 4:
-            #        playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove if x[0] in "ceg"]
-            #        if not self.try_user_move(moves, playerMoves): skip_camera_move = True
-            #    else:
-            #        skip_camera_move = True
+            if self.chessboard.color_to_move == self.player_color and not skip_camera_move:
+                camMove = self.chessCam.capture_images()
+                if len(camMove) == 2:
+                    playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove]
+                    if not self.try_user_move(moves, playerMoves): skip_camera_move = True
+
+                elif len(camMove) == 4:
+                    playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove if x[0] in "ceg"]
+                    if not self.try_user_move(moves, playerMoves): skip_camera_move = True
+                else:
+                    skip_camera_move = True
 
                 
 
@@ -109,8 +109,8 @@ class Pychess():
         """
         pygame.init()  # Make sure you have this line before initializing the font system
         pygame.font.init()
-        self.player_color = 0b1
-        #self.chessCam = ChessCam(self.player_color)
+        self.player_color = 0b0
+        self.chessCam = ChessCam(self.player_color)
         self.WIN = pygame.display.set_mode((WIDTH, HEIGHT))
         self.BOARD_LAYER = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         self.FIGURE_LAYER = pygame.Surface((WIDTH,HEIGHT), pygame.SRCALPHA)
