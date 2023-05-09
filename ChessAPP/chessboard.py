@@ -180,7 +180,7 @@ class Chessboard():
 
         if 8 > pos_x >= 0 and 8 > pos_y >= 0: return (pos_x, pos_y, self.squares[pos_y*8 + pos_x])
 
-        return (None, None)
+        return (None, None, None)
 
     def draw_drag(self, figure) -> None:
         if figure == None:
