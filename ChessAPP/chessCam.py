@@ -239,18 +239,6 @@ class ChessCam:
             return None
         
         initial_image = frame.copy()
-        #print("Press Enter to capture the new image.")
-        #while True:
-        #    ret, frame = self.cap.read()
-        #
-        #    if not ret:
-        #        break
-        #
-        #    cv2.imshow('image', frame)
-        #
-        #    if cv2.waitKey(1) & 0xFF == 13:
-        #        initial_image = frame.copy()
-        #        break
 
         print("Press Enter to capture the new image.")
         while True:

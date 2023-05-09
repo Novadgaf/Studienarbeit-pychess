@@ -17,32 +17,33 @@ class Pychess():
     def main(self):
         self.setup_pygame()
         selected_fig = None
-        skip_camera_move = False
+        self.manual_input_state = False
         
         # Add the following lines to create the manager, text, button, and slider
         self.manager = pygame_gui.UIManager((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
-        self.text_label = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect((WIDTH - 320, 20), (300, 40)),
-            text="Some text here",
+        self.last_move = "f"
+        self.text_label_last_move = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((WIDTH - 320, 20), (150, 40)),
+            text="last move",
+            manager=self.manager
+        )
+        self.text_variable_last_move = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((WIDTH - 170, 20), (150, 40)),
+            text="e4,e6",
             manager=self.manager
         )
         self.undo_move_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((WIDTH - 320, 70), (100, 40)),
+            relative_rect=pygame.Rect((WIDTH - 310, 60), (150, 40)),
             text="Undo Move",
             manager=self.manager
         )
-        self.manual_input_slider = pygame_gui.elements.UIHorizontalSlider(
-            relative_rect=pygame.Rect((WIDTH - 320, 130), (100, 20)),
-            start_value=0,
-            value_range=(0, 1),
+        self.manual_input_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((WIDTH - 160, 60), (150, 40)),
+            text="Video input",
             manager=self.manager
         )
-        self.manual_input_label = pygame_gui.elements.UILabel(
-            relative_rect=pygame.Rect((WIDTH - 210, 125), (100, 40)),
-            text="Manual Input",
-            manager=self.manager
-        )
+        
         while True:
             time_delta = self.clock.tick(60) / 1000.0
             self.manager.update(time_delta)
@@ -73,7 +74,14 @@ class Pychess():
                 if event.type == pygame.USEREVENT:
                     if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                         if event.ui_element == self.undo_move_button:
-                            print("pressed")
+                            self.chessboard.restore_state()
+                        
+                        if event.ui_element == self.manual_input_button:
+                            self.manual_input_state = not self.manual_input_state
+                            if self.manual_input_state:
+                                self.manual_input_button.set_text("Manual input")
+                            else:
+                                self.manual_input_button.set_text("Video input")
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if fig == None:
@@ -84,12 +92,16 @@ class Pychess():
                     old_x, old_y, selected_fig = pos_x, pos_y, self.chessboard.squares[pos_y*8 + pos_x]
                     self.chessboard.draw_valid_moves(selected_fig)
                 if event.type == pygame.MOUSEBUTTONUP:
+                    if pos_x == None:
+                        selected_fig = None
+                        continue
                     self.chessboard.draw_board()
                     if selected_fig == None:
                         continue
                     move = self.moveGenerator.try_move(Move(selected_fig, (old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
                     if move:
                         self.chessboard.make_move(move)
+                        self.text_variable_last_move.set_text(f'{self.chessboard.index_to_square_name(move.START_SQUARE)},{self.chessboard.index_to_square_name(move.END_SQUARE)}')
                         skip_camera_move = False
                     selected_fig = None
 

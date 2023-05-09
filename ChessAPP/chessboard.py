@@ -3,6 +3,7 @@ from constants import *
 import pygame
 from figures import *
 from os import walk
+import copy
 
 class Chessboard():
     def __init__(self, board_surface: pygame.Surface, figure_surface: pygame.Surface, fen: str = STARTFEN) -> None:
@@ -14,11 +15,21 @@ class Chessboard():
         self.color_to_move = 0b0
         self.castle_right = "KQkq"
         self.en_passant_square = "-"
-
-
+        self.saved_state = None
         self.create_board(fen)
         
+    def save_state(self):
+        state = {
+            'color_to_move': self.color_to_move,
+            'castle_right': self.castle_right,
+            'en_passant_square': self.en_passant_square,
+            'squares': copy.deepcopy(self.squares),
+            'saved_state': copy.deepcopy(self.saved_state)
+        }
+        self.saved_state = state
+
     def make_move(self, move: Move):
+        self.save_state()
         self.color_to_move = self.color_to_move^0b1
         self.en_passant_square = move.EN_PASSANT_SQUARE
 
@@ -31,6 +42,16 @@ class Chessboard():
         self.squares[move.START_SQUARE] = None
         self.squares[move.END_SQUARE] = move.FIGURE
         self.squares[move.END_SQUARE].has_moved = True
+
+    def restore_state(self):
+        if self.saved_state:
+            self.color_to_move = self.saved_state['color_to_move']
+            self.castle_right = self.saved_state['castle_right']
+            self.en_passant_square = self.saved_state['en_passant_square']
+            self.squares = self.saved_state['squares']
+            self.saved_state = self.saved_state['saved_state']
+        else:
+            print("No saved state available.")
 
     def castle(self, type):
         print(f"castle type {type} rights {self.castle_right}")
