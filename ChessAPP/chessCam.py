@@ -170,7 +170,7 @@ class ChessCam:
         # Calculate the difference between the two frames
         diff = cv2.absdiff(blurredOld, blurredNew)
         # Threshold the difference image to remove small changes
-        thresh = cv2.threshold(diff, 10, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.threshold(diff, 15, 255, cv2.THRESH_BINARY)[1]
         cv2.imshow("diff",diff)
         cv2.imshow("thresh",thresh)
         
@@ -214,7 +214,7 @@ class ChessCam:
                 # Calculate the starting and ending squares of the move
                 xvalue = int((x+0.5*w) / square_width)
                 yvalue = int((y+0.5*h) / square_height)
-                square = chr(97 + xvalue) + str(8- yvalue)
+                square = chr(104 - xvalue) + str(1+ yvalue)
                 move.append(square)
                 move = list(set(move))
             iterator += 1
@@ -233,24 +233,24 @@ class ChessCam:
             raise Exception("Error opening video stream or file")
 
         
-        #ret, frame = self.cap.read()
+        ret, frame = self.cap.read()
+        
+        if not ret:
+            return None
+        
+        initial_image = frame.copy()
+        #print("Press Enter to capture the new image.")
+        #while True:
+        #    ret, frame = self.cap.read()
         #
-        #if not ret:
-        #    return None
+        #    if not ret:
+        #        break
         #
-        #initial_image = frame.copy()
-        print("Press Enter to capture the new image.")
-        while True:
-            ret, frame = self.cap.read()
-
-            if not ret:
-                break
-
-            cv2.imshow('image', frame)
-
-            if cv2.waitKey(1) & 0xFF == 13:
-                initial_image = frame.copy()
-                break
+        #    cv2.imshow('image', frame)
+        #
+        #    if cv2.waitKey(1) & 0xFF == 13:
+        #        initial_image = frame.copy()
+        #        break
 
         print("Press Enter to capture the new image.")
         while True:

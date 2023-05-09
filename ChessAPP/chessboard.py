@@ -240,3 +240,4 @@ class Chessboard():
     def index_to_square_name(self, index: int) -> str:
         ret = f"{chr(index%8 + 97)}{8-int(index/8)}"
         return ret
+    

@@ -1,5 +1,6 @@
 from numpy import empty
 import pygame
+import pygame.locals as pl
 from constants import *
 from chessboard import *
 from moveGenerator import MoveGenerator
@@ -15,27 +16,28 @@ class Pychess():
     def main(self):
         self.setup_pygame()
         selected_fig = None
+        skip_camera_move = False
         
         
         while True:
             pos_x, pos_y, fig = self.chessboard.get_square_under_mouse()
             moves: list[Move] = self.moveGenerator.generateMoves()
-            
-            if self.chessboard.color_to_move == self.player_color:
+            if not moves:
+                return
+
+            if self.chessboard.color_to_move == self.player_color and not skip_camera_move:
                 camMove = self.chessCam.capture_images()
-                print(camMove)
-                if len(camMove) < 2:
-                    continue
-                playyerMoves = [self.chessboard.square_name_to_index(x) for x in camMove]
-                playerMove = None
-                print(moves)
-                for figure in moves:
-                    print(f"\n\n\n figure in moves {moves} \n\n\n")
-                    for validMove in figure:
-                        if playyerMoves[0] == validMove.START_SQUARE and playyerMoves[1] == validMove.END_SQUARE:
-                            self.chessboard.make_move(validMove)
-                        elif playyerMoves[0] == validMove.END_SQUARE and playyerMoves[1] == validMove.START_SQUARE:
-                            self.chessboard.make_move(validMove)
+                if len(camMove) == 2:
+                    playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove]
+                    if not self.try_user_move(moves, playerMoves): skip_camera_move = True
+
+                elif len(camMove) == 4:
+                    playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove if x[0] in "ceg"]
+                    if not self.try_user_move(moves, playerMoves): skip_camera_move = True
+                else:
+                    skip_camera_move = True
+
+                
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -52,12 +54,11 @@ class Pychess():
                     self.chessboard.draw_board()
                     if selected_fig == None:
                         continue
-                    moves = self.moveGenerator.try_move(Move(selected_fig, (old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
-                    if moves:
-                        self.chessboard.make_move(moves)
-                        selected_fig = None
-                    else:
-                        selected_fig = None
+                    move = self.moveGenerator.try_move(Move(selected_fig, (old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
+                    if move:
+                        self.chessboard.make_move(move)
+                        skip_camera_move = False
+                    selected_fig = None
 
             
             self.FIGURE_LAYER.fill(pygame.Color(0,0,0,0))
@@ -68,15 +69,11 @@ class Pychess():
             self.WIN.blit(self.FIGURE_LAYER,(0,0))
             pygame.display.update()
 
-            if not moves:
-                messagebox.showinfo("CHECKMATE")
-
-
     def setup_pygame(self):
         """
         setup_pygame creates the main window aswell as the layers for the chessboard and figures
         """
-        self.player_color = 0b0
+        self.player_color = 0b1
         self.chessCam = ChessCam(self.player_color)
         self.WIN = pygame.display.set_mode((WIDTH, HEIGHT))
         self.BOARD_LAYER = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
@@ -94,3 +91,14 @@ class Pychess():
         self.WIN.blit(self.FIGURE_LAYER,(0,0))
         
         pygame.display.update()
+
+    def try_user_move(self, aviableMoves, playerMoves):
+        for figure in aviableMoves:
+                    for validMove in figure:
+                        if playerMoves[0] == validMove.START_SQUARE and playerMoves[1] == validMove.END_SQUARE:
+                            self.chessboard.make_move(validMove)
+                            return False
+                        elif playerMoves[0] == validMove.END_SQUARE and playerMoves[1] == validMove.START_SQUARE:
+                            self.chessboard.make_move(validMove)
+                            return False
+        return True
