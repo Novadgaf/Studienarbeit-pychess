@@ -110,7 +110,7 @@ class Chessboard():
         """
         self.draw_board()
         self.squares = self.loadPositionFromFenString(fen)
-        self.draw_figures()
+        self.draw_figures_on_board()
         
     def draw_board(self):
         """
@@ -169,22 +169,29 @@ class Chessboard():
         rec = pygame.Rect(cord_x,cord_y,SQUARE_SIZE,SQUARE_SIZE)
         self.FIGURE_SURFACE.blit(self.IMAGES[figure.NAME], rec)
 
-    def draw_figures(self):
+    def draw_figures_on_board(self) -> None:
         """
-        draw_figures draws all figures from a given list
+        Draw all the figures on the chessboard and update the display.
         """
         for idx, figure in enumerate(self.squares):
-            if figure == None:
+            # Skip empty squares
+            if figure is None:
                 continue
+
+            # Calculate the file (column) and rank (row) for the current index
             file = idx % 8
-            rank = int(idx/8)
-            
-            cord_x = file*SQUARE_SIZE
-            cord_y = rank*SQUARE_SIZE
+            rank = idx // 8
 
-            self.draw_figure(cord_x, cord_y, figure)
+            # Calculate the x and y coordinates for the figure on the board
+            coord_x = file * SQUARE_SIZE
+            coord_y = rank * SQUARE_SIZE
 
+            # Draw the figure at the calculated coordinates
+            self.draw_figure(coord_x, coord_y, figure)
+
+        # Update the display
         pygame.display.update()
+
 
     def get_square_under_mouse(self) -> Tuple:
         """
