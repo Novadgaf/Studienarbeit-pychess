@@ -1,4 +1,5 @@
 from move import Move
+from chessboard import square_name_to_index, index_to_square_name
 
 SQUAREOFFSET = [-8, 8, -1, 1, -9, 9, -7, 7]
 
@@ -246,7 +247,7 @@ class MoveGenerator:
                 
                 if self.chessboard.squares[end_square] == None:
                     ep_square = end_square+SQUAREOFFSET[0]*(-1)*walking_direction
-                    move = Move(figure, start_square, end_square, en_passant_square=self.chessboard.index_to_square_name(ep_square))
+                    move = Move(figure, start_square, end_square, en_passant_square=index_to_square_name(ep_square))
                     if self.check_valid_move(move): moves.append(move)
 
         #pawn capture
@@ -263,7 +264,7 @@ class MoveGenerator:
                 if self.check_valid_move(move): moves.append(move)
 
         #En passant
-        end_square = self.chessboard.square_name_to_index(self.chessboard.en_passant_square)
+        end_square = square_name_to_index(self.chessboard.en_passant_square)
         if end_square != None:
             if abs(start_square%8 - end_square%8) == 1 and abs(int(start_square/8) - int(end_square/8)) == 1:
                 move = Move(figure, start_square, end_square, capture=end_square+(8)*walking_direction)

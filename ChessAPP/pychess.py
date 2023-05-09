@@ -7,6 +7,7 @@ from moveGenerator import MoveGenerator
 from move import Move
 from tkinter import messagebox
 from chessCam import ChessCam
+from chessboard import square_name_to_index, index_to_square_name
 import pygame_gui
 
 
@@ -52,15 +53,15 @@ class Pychess():
             if not moves:
                 return
 
-            if self.chessboard.color_to_move == self.player_color and not skip_camera_move:
+            if self.chessboard.color_to_move == self.player_color:
                 camMove = self.chessCam.capture_images()
                 if len(camMove) == 2:
-                    playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove]
-                    if not self.try_user_move(moves, playerMoves): skip_camera_move = True
+                    playerMoves = [square_name_to_index(x) for x in camMove]
+                    if not self.try_user_move(moves, playerMoves): print("wrong move")
 
                 elif len(camMove) == 4:
-                    playerMoves = [self.chessboard.square_name_to_index(x) for x in camMove if x[0] in "ceg"]
-                    if not self.try_user_move(moves, playerMoves): skip_camera_move = True
+                    playerMoves = [square_name_to_index(x) for x in camMove if x[0] in "ceg"]
+                    if not self.try_user_move(moves, playerMoves): print("wrong move")
                 else:
                     skip_camera_move = True
 
@@ -101,13 +102,13 @@ class Pychess():
                     move = self.moveGenerator.try_move(Move(selected_fig, (old_y*8 + old_x), (pos_y*8 + pos_x)), selected_fig)
                     if move:
                         self.chessboard.make_move(move)
-                        self.text_variable_last_move.set_text(f'{self.chessboard.index_to_square_name(move.START_SQUARE)},{self.chessboard.index_to_square_name(move.END_SQUARE)}')
+                        self.text_variable_last_move.set_text(f'{index_to_square_name(move.START_SQUARE)},{index_to_square_name(move.END_SQUARE)}')
                         skip_camera_move = False
                     selected_fig = None
 
             
             self.FIGURE_LAYER.fill(pygame.Color(0,0,0,0))
-            self.chessboard.draw_figures()
+            self.chessboard.draw_figures_on_board()
             self.chessboard.draw_drag(selected_fig)
             self.WIN.fill("#000000")
             self.WIN.blit(self.BOARD_LAYER,(0,0))
@@ -145,8 +146,8 @@ class Pychess():
                     for validMove in figure:
                         if playerMoves[0] == validMove.START_SQUARE and playerMoves[1] == validMove.END_SQUARE:
                             self.chessboard.make_move(validMove)
-                            return False
+                            return True
                         elif playerMoves[0] == validMove.END_SQUARE and playerMoves[1] == validMove.START_SQUARE:
                             self.chessboard.make_move(validMove)
-                            return False
-        return True
+                            return True
+        return False
