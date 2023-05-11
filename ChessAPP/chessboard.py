@@ -11,6 +11,8 @@ class SquareInfo(NamedTuple):
     y: Union[int, None]
     piece: Union[Figure, None]
 
+#NW, NE, SW, SE, WN, WS, EN, ES
+SQUAREOFFSET_KNIGHT = [-17, -15, 15, 17, -10, 6, -6, 10]
 
 class Chessboard:
     def __init__(self, board_surface: pygame.Surface, figure_surface: pygame.Surface, fen: str = STARTFEN) -> None:
@@ -20,6 +22,7 @@ class Chessboard:
         self.color_to_move = 0b0
         self.castle_right = "KQkq"
         self.en_passant_square = "-"
+        self.pieces_affected_by_move = []
         self.saved_state = None
         self.create_board(fen)
 
@@ -74,6 +77,14 @@ class Chessboard:
         self.squares[move.START_SQUARE] = None
         self.squares[move.END_SQUARE] = move.FIGURE
         self.squares[move.END_SQUARE].has_moved = True
+
+
+    def update_affected_pieces(move: Move):
+        affected_pieces = [move.END_SQUARE]
+        for x in SQUAREOFFSET_KNIGHT:
+            affected_pieces.append(move.END_SQUARE+SQUAREOFFSET_KNIGHT)
+            affected_pieces.append(move.START_SQUARE+SQUAREOFFSET_KNIGHT)
+
 
 
     def _move_castle_pieces(self, king_src: str, king_dst: str, rook_src: str, rook_dst: str) -> None:

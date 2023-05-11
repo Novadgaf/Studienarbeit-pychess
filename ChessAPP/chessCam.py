@@ -136,13 +136,13 @@ class ChessCam:
                     cv2.circle(frame, (x, y), circle_radius, circle_color, -1)
                     cv2.imshow('image', frame)
 
-        # Capture frame
-        ret, frame = self.cap.read()
-        if not ret:
-            return np.array(points)
-
         # Collect points until four points are clicked
         while len(points) < 4:
+            # Capture frame
+            ret, frame = self.cap.read()
+            if not ret:
+                return np.array(points)
+            
             # Display the resulting frame
             cv2.imshow('image', frame)
             cv2.setMouseCallback('image', click_event)
@@ -260,18 +260,16 @@ class ChessCam:
         return lower_hsv_values, upper_hsv_values
 
 
-    def filter_player_pieces(self, image: np.ndarray) -> np.ndarray:
+    def filter_player_pieces(self, top_down_image: np.ndarray) -> np.ndarray:
         """
         Filters out player pieces from the given image.
 
         Args:
-            image (np.ndarray): The input image.
+            top_down_image (np.ndarray): The input image.
 
         Returns:
             np.ndarray: The filtered image containing only player pieces.
         """
-        top_down_image = self.four_point_transform(image)
-
         if self.playerColor == 0b0:
             # Filter out the white pieces
             hsv = cv2.cvtColor(top_down_image, cv2.COLOR_BGR2HSV)
@@ -394,25 +392,7 @@ class ChessCam:
         cv2.destroyAllWindows()
         return move
     
-
-    def capture_images(self) -> Optional[List[str]]:
-        """
-        Captures two images: initial state and new state after a move, then
-        identifies the move made by the player.
-
-        Returns:
-            Optional[List[str]]: The identified move, or None if there is an error
-                                 reading the video stream or file.
-        """
-
-        def wait_for_keypress() -> None:
-            """
-            Waits for the Enter key to be pressed.
-            """
-            while True:
-                if cv2.waitKey(1) & 0xFF == 13:
-                    break
-
+    def capture_image(self):
         if not self.cap.isOpened():
             raise Exception("Error opening video stream or file")
 
@@ -421,21 +401,7 @@ class ChessCam:
         if not ret:
             return None
 
-        initial_image = frame.copy()
+        image = frame.copy()
+        cropped_image = self.four_point_transform(image)
 
-        print("Press Enter to capture the new image.")
-        while True:
-            ret, frame = self.cap.read()
-
-            if not ret:
-                break
-
-            cv2.imshow('image', frame)
-
-            if cv2.waitKey(1) & 0xFF == 13:
-                new_image = frame.copy()
-                break
-
-        cv2.destroyAllWindows()
-
-        return self.get_move(initial_image, new_image)
+        return cropped_image

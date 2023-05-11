@@ -1,17 +1,9 @@
 from move import Move
 from chessboard import square_name_to_index, index_to_square_name
+import numpy as np
 
-SQUAREOFFSET = [-8, 8, -1, 1, -9, 9, -7, 7]
 
-#NW, NE, SW, SE, WN, WS, EN, ES
-SQUAREOFFSET_KNIGHT = [-17, -15, 15, 17, -10, 6, -6, 10]
-
-class MoveGenerator:
-
-    def __init__(self, chessboard) -> None:
-        self.chessboard = chessboard
-
-    def calculateSquaresToBorderArray(self):
+def calculateSquaresToBorderArray():
         offsets = []
         for idx in range(64):
 
@@ -29,9 +21,20 @@ class MoveGenerator:
                 ])
         
         return offsets
-            
 
-    def generateMoves(self, color=None):
+SQUAREOFFSET = [-8, 8, -1, 1, -9, 9, -7, 7]
+
+#NW, NE, SW, SE, WN, WS, EN, ES
+SQUAREOFFSET_KNIGHT = [-17, -15, 15, 17, -10, 6, -6, 10]
+
+BORDER_OFFSETS = calculateSquaresToBorderArray()
+
+class MoveGenerator:
+
+    def __init__(self, chessboard) -> None:
+        self.chessboard = chessboard          
+
+    def generateMoves(self, color=None, figures = "rnbqkp"):
         """generates all possible moves for every figure on the board
 
         :return: list of possible moves
@@ -45,21 +48,23 @@ class MoveGenerator:
             if figure == None: continue
             if figure.COLOR != color: continue
 
-            if figure.HAS_RANGE_MOVEMENT: 
+            if figure.HAS_RANGE_MOVEMENT and figure.TYPE in figures: 
                 figure.moves = self.generateRangeMoves(idx)
 
-            if figure.TYPE == "k":
+            elif figure.TYPE == "k" and figure.TYPE in figures:
                 figure.moves = self.generateKingMoves(idx)
 
-            if figure.TYPE == "p":
+            elif figure.TYPE == "p" and figure.TYPE in figures:
                 figure.moves = self.generatePawnMoves(idx)
 
-            if figure.TYPE == "n":
+            elif figure.TYPE == "n" and figure.TYPE in figures:
                 figure.moves = self.generateKnightMoves(idx)
-            
+            else:
+                figure.moves = []
+
             if figure.moves: player_moves.append(figure.moves)
-            
-        return player_moves
+        tmp =[move for sublist in player_moves for move in sublist]
+        return tmp
 
     def generateRangeMoves(self, start_square: int) -> list[Move]:
         """generate all possible moves for a range movement figure on the board
@@ -71,9 +76,7 @@ class MoveGenerator:
         :return: list of moves for the figure
         :rtype: list[Move]
         """
-
-        border_offsets = self.calculateSquaresToBorderArray()
-        border_offsets = border_offsets[start_square]
+        border_offsets = BORDER_OFFSETS[start_square]
         figure = self.chessboard.squares[start_square]
 
 
@@ -112,8 +115,7 @@ class MoveGenerator:
 
 
     def generateKingMoves(self, start_square: int) -> list[Move]:
-        borderOffsets = self.calculateSquaresToBorderArray()
-        borderOffsets = borderOffsets[start_square]
+        borderOffsets = BORDER_OFFSETS[start_square]
         figure = self.chessboard.squares[start_square]
 
         moves = []
@@ -175,7 +177,7 @@ class MoveGenerator:
         
 
     def generateKnightOffsets(self, figure_square) -> list:
-        border_offset = self.calculateSquaresToBorderArray()[figure_square]
+        border_offset = BORDER_OFFSETS[figure_square]
         figure_offsets = SQUAREOFFSET_KNIGHT.copy()
 
         if border_offset[0] < 2:
@@ -228,8 +230,6 @@ class MoveGenerator:
 
 
     def generatePawnMoves(self, start_square: int) -> list[Move]:
-        borderOffsets = self.calculateSquaresToBorderArray()
-        borderOffsets = borderOffsets[start_square]
         figure = self.chessboard.squares[start_square]
 
         walking_direction = 1 if figure.COLOR == 0b0 else -1
@@ -278,20 +278,23 @@ class MoveGenerator:
                 return valid_move
         return None
     
-    def find_king_square(self, position) -> int:
-
+    def find_king_square(self, position, color=None) -> int:
+        if color==None:
+            color = self.chessboard.color_to_move
         for idx, figure in enumerate(position):
             if figure == None: continue
-            if figure.COLOR != self.chessboard.color_to_move: continue
+            if figure.COLOR != color: continue
             if figure.TYPE == "k": return idx
 
 
     def check_for_checks(self, position: list) -> int:
         checks = 0
         king_square = self.find_king_square(position)
+        if not king_square: 
+            return 666
         king_figure = position[king_square]
 
-        figure_border_offets = self.calculateSquaresToBorderArray()[king_square]
+        figure_border_offets = BORDER_OFFSETS[king_square]
 
         #find rook / queen checks
         figure_square_offsets = SQUAREOFFSET[:4]
@@ -356,6 +359,20 @@ class MoveGenerator:
             if  position[end_square].COLOR != king_figure.COLOR and position[end_square].TYPE == "p":
                 checks += 1
 
+        #find king attacks
+        for border_offset, square_offset in zip(figure_border_offets, SQUAREOFFSET):
+            if border_offset == 0: 
+                continue
+
+            end_square = king_square + square_offset
+            end_square_figure = position[end_square]
+
+            if end_square_figure == None:
+                    continue
+            elif end_square_figure.COLOR != king_figure.COLOR:
+                if end_square_figure.TYPE == "k":
+                    checks += 1
+
         return checks
     
     def check_valid_move(self, move: Move) -> bool:
@@ -366,3 +383,10 @@ class MoveGenerator:
         if self.check_for_checks(new_position) == 0: return True
             
         else: return False
+
+    def get_attacked_squares(self, color, figures = "rnbqkp"):
+        moves = self.generateMoves(color, figures)
+        attacked_squares = []
+        for move in moves:
+            attacked_squares.append(move.END_SQUARE)
+        return attacked_squares
