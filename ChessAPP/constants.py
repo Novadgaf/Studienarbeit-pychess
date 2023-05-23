@@ -6,5 +6,5 @@ WIDTH = 960
 HEIGHT = 640
 SQUARE_SIZE = 80
 
-#rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-STARTFEN = "2k5/8/4br3/8/8/8/8/2K5 w KQkq - 0 1"
+#2k5/8/4br2/8/8/8/2K5/8 b KQkq
+STARTFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

@@ -220,10 +220,12 @@ class MoveGenerator:
             if os == 0: continue
 
             end_square = start_square+os
+            move = Move(figure, start_square, end_square)
             if self.chessboard.squares[end_square] != None:
                 if self.chessboard.squares[end_square].COLOR == self.chessboard.color_to_move:
                     continue
-            move = Move(figure, start_square, end_square, capture=end_square)
+                elif self.chessboard.squares[end_square].COLOR != self.chessboard.color_to_move: 
+                    move.CAPTURE = end_square
             if self.check_valid_move(move): moves.append(move)
         
         return moves

@@ -22,6 +22,8 @@ class Chessboard:
         self.color_to_move = 0b0
         self.castle_right = "KQkq"
         self.en_passant_square = "-"
+        self.half_moves = 0
+        self.game_turn = 1
         self.pieces_affected_by_move = []
         self.saved_state = None
         self.create_board(fen)
@@ -65,26 +67,27 @@ class Chessboard:
 
     def make_move(self, move: Move) -> None:
         self.save_state()
+        if move.FIGURE.COLOR == 0b1:
+            self.game_turn += 1
         self.color_to_move = self.color_to_move ^ 0b1
         self.en_passant_square = move.EN_PASSANT_SQUARE
 
         if move.IS_CASTLE:
             self.castle(move.CASTLE_TYPE)
+            self.generate_fen_from_current_position()
             return
 
         if move.CAPTURE is not None:
             self.squares[move.CAPTURE] = None
+            self.half_moves = 0
+        elif move.FIGURE.TYPE == "p":
+            self.half_moves = 0
+        else:
+            self.half_moves += 1
+
         self.squares[move.START_SQUARE] = None
         self.squares[move.END_SQUARE] = move.FIGURE
         self.squares[move.END_SQUARE].has_moved = True
-
-
-    def update_affected_pieces(move: Move):
-        affected_pieces = [move.END_SQUARE]
-        for x in SQUAREOFFSET_KNIGHT:
-            affected_pieces.append(move.END_SQUARE+SQUAREOFFSET_KNIGHT)
-            affected_pieces.append(move.START_SQUARE+SQUAREOFFSET_KNIGHT)
-
 
 
     def _move_castle_pieces(self, king_src: str, king_dst: str, rook_src: str, rook_dst: str) -> None:
@@ -127,7 +130,15 @@ class Chessboard:
 
         king_src, king_dst, rook_src, rook_dst = castling_moves[type]
         self._move_castle_pieces(king_src, king_dst, rook_src, rook_dst)
-        self.castle_right = self.castle_right.replace(type, "")
+        if type.islower():
+            self.castle_right = self.castle_right.replace("k", "")
+            self.castle_right = self.castle_right.replace("q", "")
+        else:
+            self.castle_right = self.castle_right.replace("K", "")
+            self.castle_right = self.castle_right.replace("Q", "")
+
+        if self.castle_right == "":
+            self.castle_right = "-"
 
 
     def create_board(self, fen: str) -> None:
@@ -371,6 +382,50 @@ class Chessboard:
         self.en_passant_square = position_info[3]
 
         return chessboard_squares
+    
+    # "2k5/8/4br3/8/8/8/8/2K5 w KQkq - 0 1"
+    # "2k5/8/4br2/8/8/8/2K5/
+    def generate_fen_from_current_position(self) -> str:
+        position = self.squares
+        fen_string = ""
+
+        empty_square_count = 0
+        for idx,figure in enumerate(position):
+            if idx % 8 == 0 and idx > 0:
+                if empty_square_count > 0:
+                    fen_string += str(empty_square_count)
+                    empty_square_count = 0
+                fen_string += "/"
+
+            if figure is None:
+                empty_square_count += 1
+                continue
+
+            if figure.COLOR == 0b0:
+                figure_name = figure.TYPE.upper()
+            else:
+                figure_name = figure.TYPE
+            
+            if empty_square_count > 0:
+                fen_string += str(empty_square_count)
+            fen_string += figure_name
+            empty_square_count = 0
+        
+        if empty_square_count > 0:
+            fen_string += str(empty_square_count)
+        
+        if self.color_to_move == 0b0:
+            fen_string += " w"
+        else:
+            fen_string += " b"
+        
+        fen_string += f" {self.castle_right} {self.en_passant_square} {self.half_moves} {self.game_turn}"
+
+        return fen_string
+            
+
+
+
 
 
 def square_name_to_index(square_name: str) -> Optional[int]:

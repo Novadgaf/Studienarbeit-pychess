@@ -1,6 +1,7 @@
 from numpy import empty
 import pygame
 import pygame.locals as pl
+from fish import Bot
 from constants import *
 from chessboard import *
 from moveGenerator import MoveGenerator
@@ -65,22 +66,21 @@ class Pychess():
             if not moves:
                 return
             
-            if False:
-                if self.chessboard.color_to_move == self.player_color and not self.manual_input_state and len(positions) == 2:
-                    camMove = self.chessCam.get_move(positions[0], positions[1])
-                    if len(camMove) == 2:
-                        playerMoves = [square_name_to_index(x) for x in camMove]
-                        if not self.try_user_move(moves, playerMoves): 
-                            self.switch_input_type()
-
-                    elif len(camMove) == 4:
-                        playerMoves = [square_name_to_index(x) for x in camMove if x[0] in "ceg"]
-                        if not self.try_user_move(moves, playerMoves): self.switch_input_type()
-                    else:
+            if self.chessboard.color_to_move == self.player_color and not self.manual_input_state and len(positions) == 2:
+                camMove = self.chessCam.get_move(positions[0], positions[1])
+                if len(camMove) == 2:
+                    playerMoves = [square_name_to_index(x) for x in camMove]
+                    if not self.try_user_move(moves, playerMoves): 
                         self.switch_input_type()
-                    continue
-                elif len(positions) > 2:
-                    positions = []
+
+                elif len(camMove) == 4:
+                    playerMoves = [square_name_to_index(x) for x in camMove if x[0] in "ceg"]
+                    if not self.try_user_move(moves, playerMoves): self.switch_input_type()
+                else:
+                    self.switch_input_type()
+                continue
+            elif len(positions) > 2:
+                positions = []
                 
             for event in pygame.event.get():
                 self.manager.process_events(event)
@@ -121,19 +121,19 @@ class Pychess():
                             self.text_variable_last_move.set_text(f'{index_to_square_name(move.START_SQUARE)},{index_to_square_name(move.END_SQUARE)}')
                         selected_fig = None
                 elif self.chessboard.color_to_move != self.player_color:
-                    computer_move = self.computer.choose_computer_move()
+                    computer_move = self.computer.get_move()
                     self.chessboard.make_move(computer_move)
                     positions = []
 
-            #live_image = self.chessCam.capture_image()
-            #self.plot_surface = self.cv2_image_to_pygame_surface(live_image, 200, 200)
+            live_image = self.chessCam.capture_image()
+            self.plot_surface = self.cv2_image_to_pygame_surface(live_image, 200, 200)
             self.FIGURE_LAYER.fill(pygame.Color(0,0,0,0))
             self.chessboard.draw_figures_on_board()
             self.chessboard.draw_drag(selected_fig)
             self.WIN.fill("#000000")
             self.WIN.blit(self.BOARD_LAYER,(0,0))
             self.WIN.blit(self.FIGURE_LAYER,(0,0))
-            #self.WIN.blit(self.plot_surface, (WIDTH - 260, 125))
+            self.WIN.blit(self.plot_surface, (WIDTH - 260, 125))
             self.manager.draw_ui(self.WIN)
             pygame.display.update()
 
@@ -144,13 +144,13 @@ class Pychess():
         pygame.init()  # Make sure you have this line before initializing the font system
         pygame.font.init()
         self.player_color = 0b0
-        #self.chessCam = ChessCam(self.player_color)
+        self.chessCam = ChessCam(self.player_color)
         self.WIN = pygame.display.set_mode((WIDTH, HEIGHT))
         self.BOARD_LAYER = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         self.FIGURE_LAYER = pygame.Surface((WIDTH,HEIGHT), pygame.SRCALPHA)
 
         self.chessboard = Chessboard(self.BOARD_LAYER, self.FIGURE_LAYER)
-        self.computer = Computer(self.chessboard, 0b1)
+        self.computer = Bot(self.chessboard)
         self.moveGenerator = MoveGenerator(self.chessboard)
 
     def update_win(self):
