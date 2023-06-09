@@ -24,7 +24,6 @@ class Chessboard:
         self.en_passant_square = "-"
         self.half_moves = 0
         self.game_turn = 1
-        self.pieces_affected_by_move = []
         self.saved_state = None
         self.create_board(fen)
 
@@ -72,11 +71,6 @@ class Chessboard:
         self.color_to_move = self.color_to_move ^ 0b1
         self.en_passant_square = move.EN_PASSANT_SQUARE
 
-        if move.IS_CASTLE:
-            self.castle(move.CASTLE_TYPE)
-            self.generate_fen_from_current_position()
-            return
-
         if move.CAPTURE is not None:
             self.squares[move.CAPTURE] = None
             self.half_moves = 0
@@ -85,9 +79,19 @@ class Chessboard:
         else:
             self.half_moves += 1
 
+        if move.IS_CASTLE:
+            self.castle(move.CASTLE_TYPE)
+            self.generate_fen_from_current_position()
+            return
+
+
         self.squares[move.START_SQUARE] = None
-        self.squares[move.END_SQUARE] = move.FIGURE
-        self.squares[move.END_SQUARE].has_moved = True
+
+        if move.IS_PROMOTION:
+            self.squares[move.END_SQUARE] = move.PROMOTION_PIECE
+        else:
+            self.squares[move.END_SQUARE] = move.FIGURE
+            self.squares[move.END_SQUARE].has_moved = True
 
 
     def _move_castle_pieces(self, king_src: str, king_dst: str, rook_src: str, rook_dst: str) -> None:

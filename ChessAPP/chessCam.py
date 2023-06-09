@@ -355,7 +355,7 @@ class ChessCam:
         Returns:
             List[str]: The identified move.
         """
-        preprocessed_old = self.preprocess_image(image_old)
+        preprocessed_old = self.preprocess_image(image_old) 
         preprocessed_new = self.preprocess_image(image_new)
 
         thresh = self.compute_difference(preprocessed_old, preprocessed_new)
@@ -368,6 +368,7 @@ class ChessCam:
         iterator = 0
 
         while len(move) < 2 and iterator < 500:
+            move = []
             for contour in contours:
                 contour_area = cv2.contourArea(contour)
 
@@ -392,7 +393,12 @@ class ChessCam:
         cv2.destroyAllWindows()
         return move
     
-    def capture_image(self):
+    def capture_image(self) -> np.ndarray:
+        """
+        Captures current image and returns it
+        Returns:
+            np.ndarray: The transformed captured image
+        """
         if not self.cap.isOpened():
             raise Exception("Error opening video stream or file")
 
